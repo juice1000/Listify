@@ -7,7 +7,7 @@ import json
 # TODO: needs to be refactored if we want to make an app out of this
 scope = 'user-library-read'
 username = 'Julien Look'
-playlist_id = '1QzMPmOyuxetr3Mbw4vBb8'
+
 
 def authorization():
     token = util.prompt_for_user_token(username,
@@ -26,9 +26,14 @@ def dict_iterator(d, song_title):
                 return(url_check(stack))
 
 
-def retrieve_playlist_songs():
+def retrieve_playlist_songs(playlist_id, debug):
     auth = authorization()
-    json_file = subprocess.check_output(["curl", "-X", "GET", f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks?fields=items(track(name%2C%20album(artists(name))))", "-H", auth, '--silent'])
+
+    song_limit = ''
+    if debug:
+        song_limit = '&limit=1'
+        
+    json_file = subprocess.check_output(["curl", "-X", "GET", f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks?fields=items(track(name%2C%20album(artists(name)))){song_limit}", "-H", auth, '--silent'])
 
     song_titles = []
 
