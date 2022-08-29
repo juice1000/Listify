@@ -20,15 +20,19 @@ if playlist_link == '':
 playlist_id = re.findall(r'playlist/(.*)\?', playlist_link)[0]
 
 target_file_type = input('Specify file type [default is .wav]: \n')
+if target_file_type != '.wav' or target_file_type != '.mp3':
+    print('No valid input found, music files will be converted to .wav\n')
+    target_file_type = '.wav'
+
+
 home = str(Path.home())
 music_directory = home + '/Music/' 
 music_subdirectory =  input('Specify directory [press enter if you want to create a directory in music folder]: \n')
-
 if music_subdirectory == '':
     music_subdirectory = 'spotify_downloaded_playlist'
 
-if target_file_type == '':
-    target_file_type = '.wav'
+
+
 
 parent_dir = music_directory + music_subdirectory
 
