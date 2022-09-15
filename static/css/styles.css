@@ -1,6 +1,20 @@
-h1 {
-    border: 2px #eee solid;
-    color: brown;
-    text-align: center;
-    padding: 10px;
+.page {
+    margin-top: 5em;
+    background-color: #39b91d
+}
+
+.insert {
+    width: 70%;
+    border-radius: 10px;
+    border-color: black;
+    padding: 12px;
+}
+
+.button {
+    border-radius: 10px;
+}
+
+.picture {
+    width: 50%;
+    transform: rotate(180deg)
 }
