@@ -19,13 +19,6 @@ def authorization():
     return auth
 
 
-def dict_iterator(d, song_title):
-    stack = list(d.items())
-    for k, v in stack:
-            if k == "name" and v == song_title:
-                return(url_check(stack))
-
-
 def retrieve_playlist_songs(playlist_id, debug):
     auth = authorization()
 
