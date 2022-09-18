@@ -44,12 +44,10 @@ def download():
             flash('Title is required!')
         yt.download_from_link(title, debug=True)
     path = 'static/music_files/'
-    zippath = path + 'sampleDir.zip'
     data = BytesIO()
     zipping(data, path)
     data.seek(0)
-    return send_file(data, mimetype='application/zip', as_attachment=True, download_name='data.zip')
-
+    return send_file(data, mimetype='application/zip', as_attachment=True, download_name='music_playlist.zip')
 
 
 if __name__ == "__main__":
