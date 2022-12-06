@@ -57,7 +57,7 @@ def download_from_link(playlist_link, debug=True):
 
                 # Transform file with ffmpeg
                 subprocess.run([
-                'ffmpeg',
+                'ffmpeg', '-loglevel', 'warning',
                 '-i', os.path.join(parent_dir, default_filename),
                 os.path.join(parent_dir, filename)])
 
