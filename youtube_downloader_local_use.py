@@ -8,12 +8,12 @@ import spotify_get_song_names as spt
 from pathlib import Path
 
 
-def download_from_link(playlist_link, debug=True):
+def download_from_link(playlist_link, debug=False):
 
     # TODO: print out chosen playlist name
     if playlist_link == '':
-        playlist_link = 'https://open.spotify.com/playlist/1QzMPmOyuxetr3Mbw4vBb8?si=17ea6d0eee7b44ca'
-        debug = True
+        playlist_link = 'https://open.spotify.com/playlist/3ULk7XI8p5pQ0zv0dVbTzs?si=b10cc6737ce84725'
+        #debug = True
 
     # Parse playlist id from link
     playlist_id = re.findall(r'playlist/(.*)\?', playlist_link)[0]
@@ -25,18 +25,18 @@ def download_from_link(playlist_link, debug=True):
     target_file_type = '.wav'
 
     home = str(Path.home())
-    #music_directory = home + '/Music/' 
-    #music_subdirectory =  input('Specify directory [press enter if you want to create a directory in music folder]: \n')
-    #if music_subdirectory == '':
-    #    music_subdirectory = 'spotify_downloaded_playlist'
+    music_directory = home + '/Music/' 
+    music_subdirectory =  input('Specify directory [press enter if you want to create a directory in music folder]: \n')
+    if music_subdirectory == '':
+        music_subdirectory = 'spotify_downloaded_playlist/downtempo_set'
 
 
 
 
-    #parent_dir = music_directory + music_subdirectory
+    parent_dir = music_directory + music_subdirectory
 
 
-    parent_dir = 'static/music_files'
+    #parent_dir = 'static/music_files'
 
     song_titles = spt.retrieve_playlist_songs(playlist_id, debug = debug)
 
@@ -67,3 +67,6 @@ def download_from_link(playlist_link, debug=True):
                 break
             except Exception as e:
                 print(e)
+
+
+download_from_link('')
