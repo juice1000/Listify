@@ -4,7 +4,7 @@ class Config(object):
     DATABASE_URI = 'sqlite://:memory:'
 class ProductionConfig(Config):
     DATABASE_URI = 'mysql://user@localhost/foo'
-class DevelopmentConfig(Config):
+class Dev(Config):
     ENV="development"
     DEBUG = True
     SECRET_KEY = 'dev'

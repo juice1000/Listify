@@ -4,9 +4,9 @@
 
     <img src="static/images/spotify_logo.png" alt="Logo" class="picture">
     <h1>{% block title %} Welcome to Listify! {% endblock %}</h1>
-    <h5>Download your Spotify playlists and get the real song files</h5>
+    <h5>Download your Spotify playlists and get the song files in highest quality</h5>
     
-    <form method="post">
+    <form method="post" action="{{url_for('download')}}">
         <div class="form-group">
             <label for="content"></label>
             <input class="insert" type="text" name="playlist" 
@@ -16,7 +16,7 @@
         <h5> - More Download Options -</h5>
         <h5>file format</h5>
         <div class="form-group">
-            <button type="submit" class="btn btn-primary">Download</button>
+            <input type="submit" value='Download' class="btn btn-primary"></input>
         </div>
     </form>
 
