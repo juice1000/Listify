@@ -4,61 +4,92 @@ import json
 from selenium.webdriver import Chrome
 from selenium.webdriver import ChromeOptions
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
+
 from time import sleep
 import re
 
 
+def get_number_of_tracks(soup):
+    try:
+        meta_song_count = soup.find('meta', {'name': 'music:song_count'})
+        song_count = int(meta_song_count.attrs["content"])
+        return song_count
+    except TypeError:
+        print('Could not find valid number of tracks')
 
-def extract_playlist_meta_information(driver):
-    soup = BeautifulSoup(driver.page_source, 'html.parser')
-    track_metadata = soup.find_all('meta', {'name': 'music:song'})
 
-    song_urls = []
-    for element in track_metadata:
-        element_url = element.attrs['content']
-        song_urls.append((element_url))
+def is_first_and_last_element_visible(soup, song_count):
+    first_element_locator = '#main .JUa6JJNj7R_Y3i4P8YUX > div:nth-child(2) > div:nth-child(1)'
+    first_element = soup.select(first_element_locator)
+    last_element_locator = '#main .JUa6JJNj7R_Y3i4P8YUX > div:nth-child(2) > div:nth-child({})'.format(song_count)
+    last_element = soup.select(last_element_locator)
+    if len(last_element) == 0:
+        return False
+    if len(first_element) == 0: 
+        return Exception('First Element lost on scrolling')
+    return True
+
+
+def scroll(actions):
+    # TODO: make scrolling range dependent on screen size
+    for i in range(20):
+        actions.key_down(Keys.ARROW_DOWN)
+    actions.perform()
+    ('\nscrolled down once')
+    return
+
+
+def extract_song_data(soup, song_count):
+    track_extracts = soup.find_all('div', {"class": "iCQtmPqY0QvkumAOuCjr"})
     
-    return song_urls
+    tracks = []
+    for track_extract in track_extracts:
+        song_name = track_extract.find('div',"Type__TypeElement-sc-goli3j-0 kHHFyx t_yrXoUO3qGsJS4Y6iXX standalone-ellipsis-one-line").contents[0]
+        artist_name = track_extract.find('span',"Type__TypeElement-sc-goli3j-0 dvSMET rq2VQ5mb9SDAFWbBIUIn standalone-ellipsis-one-line").contents[0].contents[0]
+        tracks.append((song_name, artist_name))
 
 
-def extract_data_from_song_url(driver):
-    soup = BeautifulSoup(driver.page_source, 'html.parser')
-
-    # TODO: #1 this is quite unstable the way we do it, let's find a better solution!
-    track_elements = soup.find_all('title')[0].contents[0].split(('- song and lyrics by'))
-    song_name = track_elements[0].strip()
-    artist_name = re.sub( '\|', '',re.sub( 'Spotify', '', track_elements[1])).strip()
-    return (song_name, artist_name)
-
+    return tracks
 
 # using selenium and beautiful soup
 def track_data_extractor(URL):
     options = ChromeOptions()
-    options.headless = True
+    options.headless = False
 
     # TODO: needs to be stored on webserver too when we're ready to deploy
     driver = Chrome(executable_path='/Users/julienlook/Documents/Coding/spotify_downloader/chromedriver', options=options)
     driver.get(url=URL)
+    #driver.maximize_window()
+    actions = ActionChains(driver)
 
-    # extract information from html head
-    # TODO: do this for all titles and put in array
-    extracted_song_url = extract_playlist_meta_information(driver)
-    driver.quit()
-    tracks = []
-    for song_url in extracted_song_url:
-        # relaunch driver
-        driver = Chrome(executable_path='/Users/julienlook/Documents/Coding/spotify_downloader/chromedriver', options=options)
-        driver.get(url=song_url)
+    # load soup
+    # TODO find a better way to wait for HTML parser to load
+    sleep(3)
+    soup = BeautifulSoup(driver.page_source, 'html.parser')
 
-        track_info = extract_data_from_song_url(driver)
+    song_count = get_number_of_tracks(soup)
 
-        # TODO: store this in another array (check array format we prepped for the youtube download)
-        print(track_info)
-        tracks.append(track_info)
-        
-        driver.quit()
+    # click on main panel once to enable scrolling
+    locator = 'contentSpacing'
+    WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CLASS_NAME,locator))).click()
+
+    # check if last track is visible by HTML 
+    while not is_first_and_last_element_visible(soup, song_count):
+        scroll(actions)
+        # reinitialize soup
+        # TODO: get a proper sleep time to see if elements really loaded
+        sleep(9)
+        soup = BeautifulSoup(driver.page_source, 'html.parser')
     
-    return tracks
+    print('left loop')
+
+    extract_song_data(soup, song_count)
+    
+    driver.quit()
 
 
 
