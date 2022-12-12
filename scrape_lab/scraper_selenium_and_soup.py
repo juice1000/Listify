@@ -12,36 +12,37 @@ from selenium.webdriver.common.keys import Keys
 from time import sleep
 import re
 
-# experimenting with soup
-def print_scripts(URL):
-    #for script in soup("script"):
-    #    script.extract()
-    page = requests.get(URL)
-    soup = BeautifulSoup(page.content, features='lxml')
-    res = soup.find_all('script')
-    json_object = json.loads(res.contents[0])
-    print(json_object)
-#job_elements = results.find_all("div", class_="body-drag-top")
-#print(job_elements)
+
+def get_number_of_tracks(soup):
+    try:
+        meta_song_count = soup.find('meta', {'name': 'music:song_count'})
+        song_count = int(meta_song_count.attrs["content"])
+        return song_count
+    except TypeError:
+        print('Could not find valid number of tracks')
 
 
-def scroll_with_selenium(driver):
-    driver.maximize_window()
-    actions = ActionChains(driver)
-    locator = 'contentSpacing'
+def is_last_element_visible(soup, song_count):
+    test_locator = '#main .JUa6JJNj7R_Y3i4P8YUX > div:nth-child(2) > div:nth-child(1)'
+    test_element = soup.select(test_locator)
+    locator = '#main .JUa6JJNj7R_Y3i4P8YUX > div:nth-child(2) > div:nth-child({})'.format(song_count)
+    element = soup.select(locator)
+    if len(element) == 0:
+        return False
+    return True
+
+
+def scroll_with_selenium(driver, actions, click = True):
+    if click:
+        locator = 'contentSpacing'
+        WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CLASS_NAME,locator))).click()
+
     print('\nscrolling now')
-    element = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CLASS_NAME,locator))).click()
-    #element = driver.find_element(By.CLASS_NAME, locator)
-    sleep(3)
-    for i in range(40):
+    for i in range(10):
         actions.key_down(Keys.ARROW_DOWN)
     actions.perform()
-    sleep(3)
-    for i in range(40):
-        actions.key_down(Keys.ARROW_DOWN)
-    actions.perform()
+    sleep(2)
 
-    sleep(3)
     return
     #actions.key_up(Keys.ARROW_DOWN)
     #test_extract = soup.find('div', {"aria-rowindex": "5"})
@@ -56,6 +57,52 @@ def scroll_with_selenium(driver):
     #div_element = driver.find_element(By.CLASS_NAME,"os-viewport os-viewport-native-scrollbars-invisible")
     #driver.execute_script("window.scrollTo(0, window.innerHeight);")
     #sleep(3)
+
+
+# experimenting with selenium
+def selenium_setup(URL):
+    options = ChromeOptions()
+    options.headless = False
+    driver = Chrome(executable_path='/Users/julienlook/Documents/Coding/spotify_downloader/chromedriver', options=options)
+    driver.get(url=URL)
+    driver.maximize_window()
+    actions = ActionChains(driver)
+
+    # load soup
+    sleep(3)
+    soup = BeautifulSoup(driver.page_source, 'html.parser')
+
+    song_count = get_number_of_tracks(soup)
+
+    # experimenting with scroll behavior
+    scroll_with_selenium(driver, actions)
+
+    # check if last track is visible by HTML 
+    while not is_last_element_visible(soup, song_count):
+        scroll_with_selenium(driver, actions, click = False)
+
+        # reinitialize soup
+        # TODO: get a proper sleep time to see if elements really loaded
+        sleep(3)
+        soup = BeautifulSoup(driver.page_source, 'html.parser')
+        print('still in loop')
+
+
+    driver.quit()
+
+
+
+# experimenting with soup
+def print_scripts(URL):
+    page = requests.get(URL)
+    soup = BeautifulSoup(page.content, features='lxml')
+    res = soup.find_all('script')
+    json_object = json.loads(res.contents[0])
+    print(json_object)
+
+
+
+
 
 
 def extract_head_meta_information(driver):
@@ -73,30 +120,6 @@ def extract_information_from_song_url(driver):
     return (song_name, artist_name)
 
 
-# experimenting with selenium
-def selenium_setup(URL):
-    options = ChromeOptions()
-    options.headless = False
-    options.fullscreen = True
-    driver = Chrome(executable_path='/Users/julienlook/Documents/Coding/spotify_downloader/chromedriver', options=options)
-    driver.get(url=URL)
-
-    # experimenting with scroll behavior
-    scroll_with_selenium(driver)
-
-    # extract information from html head
-    #test_extract = extract_head_meta_information(driver)
-    
-    #element = driver.find_element(By.CLASS_NAME, 'os-resize-observer-host observed')
-    driver.quit()
-
-    if test_extract is not None:
-        driver = Chrome(executable_path='/Users/julienlook/Documents/Coding/spotify_downloader/chromedriver', options=options)
-        driver.get(url=test_extract)
-        track_info = extract_information_from_song_url(driver)
-        print(track_info)
-        driver.quit()
-
 
 def my_tag_selector(tag):
 	# We only accept "a" tags with a titlelink class
@@ -109,12 +132,10 @@ def selenium_soup(URL):
     options.headless = True
     driver = Chrome(executable_path='/Users/julienlook/Documents/Coding/spotify_downloader/chromedriver', options=options)
     driver.get(url=URL)
-    sleep(5)
-
+    sleep(3)
     # add a try statement here in case the webpage hasn't been loaded yet
 
     soup = BeautifulSoup(driver.page_source, 'html.parser')
-
     #song_elements = soup.find_all('a', {"data-testid": "internal-track-link"})
     #song_elements = soup.find_all('div', {"class": "iCQtmPqY0QvkumAOuCjr"}, limit=None)
     #soup.select('data-testid="tracklist-row" > tr[style*="height:18px;"]')
