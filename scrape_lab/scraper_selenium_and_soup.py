@@ -4,6 +4,11 @@ import json
 from selenium.webdriver import Chrome
 from selenium.webdriver import ChromeOptions
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
+
 from time import sleep
 import re
 
@@ -21,13 +26,36 @@ def print_scripts(URL):
 
 
 def scroll_with_selenium(driver):
+    driver.maximize_window()
+    actions = ActionChains(driver)
+    locator = 'contentSpacing'
     print('\nscrolling now')
-    sleep(2)
-    driver.execute_script("window.scrollTo(0, 200);")
+    element = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CLASS_NAME,locator))).click()
+    #element = driver.find_element(By.CLASS_NAME, locator)
     sleep(3)
+    for i in range(40):
+        actions.key_down(Keys.ARROW_DOWN)
+    actions.perform()
+    sleep(3)
+    for i in range(40):
+        actions.key_down(Keys.ARROW_DOWN)
+    actions.perform()
+
+    sleep(3)
+    return
+    #actions.key_up(Keys.ARROW_DOWN)
+    #test_extract = soup.find('div', {"aria-rowindex": "5"})
+    #html_content = test_extract.prettify(formatter='html').replace("\n", "").replace(" ", '')
+    #element = WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.CLASS_NAME,locator)))
+    #actions.move_to_element(html_content).perform()
+    #div = driver.execute_script("document.getElementsByClassName('main-view-container__scroll-node-child')")
+    #scrollTop = driver.execute_script("document.getElementsByClassName('os-viewport os-viewport-native-scrollbars-invisible')[1].scrollTop")
+    #windowHeight = driver.execute_script("document.getElementsByClassName('os-viewport os-viewport-native-scrollbars-invisible')[1].clientHeight")
+    #scrollHeight = div.scrollHeight
+    #sleep(3)
     #div_element = driver.find_element(By.CLASS_NAME,"os-viewport os-viewport-native-scrollbars-invisible")
-    driver.execute_script("window.scrollTo(0, window.innerHeight);")
-    sleep(3)
+    #driver.execute_script("window.scrollTo(0, window.innerHeight);")
+    #sleep(3)
 
 
 def extract_head_meta_information(driver):
@@ -48,15 +76,16 @@ def extract_information_from_song_url(driver):
 # experimenting with selenium
 def selenium_setup(URL):
     options = ChromeOptions()
-    options.headless = True
+    options.headless = False
+    options.fullscreen = True
     driver = Chrome(executable_path='/Users/julienlook/Documents/Coding/spotify_downloader/chromedriver', options=options)
     driver.get(url=URL)
 
     # experimenting with scroll behavior
-    #scroll_with_selenium(driver)
+    scroll_with_selenium(driver)
 
     # extract information from html head
-    test_extract = extract_head_meta_information(driver)
+    #test_extract = extract_head_meta_information(driver)
     
     #element = driver.find_element(By.CLASS_NAME, 'os-resize-observer-host observed')
     driver.quit()
@@ -74,7 +103,7 @@ def my_tag_selector(tag):
 	return tag.name == "a" and tag.has_attr("class") and "t_yrXoUO3qGsJS4Y6iXX" in tag.get("class")
 
 
-# experimenting with selenium
+# experimenting with selenium + BS
 def selenium_soup(URL):
     options = ChromeOptions()
     options.headless = True
