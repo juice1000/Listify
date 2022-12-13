@@ -61,7 +61,7 @@ def track_data_extractor(URL):
     browser = 'chrome'
     if browser == 'chrome': 
         options = ChromeOptions()
-        options.headless = True
+        options.headless = False
         driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
     elif browser == 'firefox':
         options = FirefoxOptions()
@@ -81,14 +81,14 @@ def track_data_extractor(URL):
     song_count = get_number_of_tracks(soup)
 
     # undo cookies window
-    locator = 'onetrust-accept-btn-handler'
-    WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID,locator))).click()
-    locator = 'Button-sc-y0gtbx-0 hNxTPt CVqkR3tIgVsGD4SvvXS4'
     try:
-        subscription=  WebDriverWait(driver, 3).until(EC.visibility_of_element_located((By.CLASS_NAME,locator))).click()
-        print('Success')
+        locator = 'onetrust-accept-btn-handler'
+        WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID,locator))).click()
+        locator = 'Button-sc-y0gtbx-0.hNxTPt.CVqkR3tIgVsGD4SvvXS4'
+        WebDriverWait(driver, 3).until(EC.visibility_of_element_located((By.CLASS_NAME,locator))).click()
+        print('disabled all buttons')
     except:
-        print('no subscription button')
+        print('some buttons were not available')
 
     # click on main panel once to enable scrolling
     locator = 'Root__main-view'
@@ -112,8 +112,7 @@ def track_data_extractor(URL):
 # TODO: we need a function that checks if the input source is truly a playlist of just a song
 # TODO: we could create a 2 stream product that can download songs or playlists
 
-# TODO this needs to be left to the app input prompt
-#URL = "https://open.spotify.com/playlist/1QzMPmOyuxetr3Mbw4vBb8"
-
 # TODO: decide browser based on what we really use
 
+URL = 'https://open.spotify.com/playlist/1QzMPmOyuxetr3Mbw4vBb8'
+track_data_extractor(URL)
