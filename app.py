@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, url_for, flash, redirect, send_file
 from werkzeug.exceptions import abort
-import spotify_get_song_names as spt
+import _deprecated_spotify_get_song_names as spt
 import youtube_downloader as yt
 from config import Dev
 from zipfile import ZipFile
