@@ -11,18 +11,17 @@ from io import BytesIO
 import os
 app = Flask(__name__)
 #environment_configuration = os.environ['CONFIGURATION_SETUP']
-environment_configuration = Dev
-app.config.from_object(environment_configuration)
+#TODO: change into prod
+#environment_configuration = Dev
+#app.config.from_object(environment_configuration)
 
 
 @app.route('/')
 def index():
-
     return render_template('index.html')
 
 
 def zipping(data, dirName):
-
     # create a ZipFile object
     with ZipFile(data, 'w') as zipObj:
     # Iterate over all the files in directory
@@ -51,4 +50,4 @@ def download():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
