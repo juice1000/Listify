@@ -11,8 +11,8 @@ from io import BytesIO
 import os
 app = Flask(__name__)
 #environment_configuration = os.environ['CONFIGURATION_SETUP']
-environment_configuration = Dev
-app.config.from_object(environment_configuration)
+#environment_configuration = Dev
+#app.config.from_object(environment_configuration)
 
 
 @app.route('/')
