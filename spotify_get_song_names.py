@@ -113,6 +113,3 @@ def track_data_extractor(URL):
 # TODO: we could create a 2 stream product that can download songs or playlists
 
 # TODO: decide browser based on what we really use
-
-URL = 'https://open.spotify.com/playlist/1QzMPmOyuxetr3Mbw4vBb8'
-track_data_extractor(URL)
