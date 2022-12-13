@@ -4,7 +4,7 @@ from pytube import Search, YouTube
 from pytube.cli import on_progress
 import subprocess
 import os
-import spotify_get_song_names as spt
+import _deprecated_spotify_get_song_names as spt
 from pathlib import Path
 
 
@@ -12,7 +12,7 @@ def download_from_link(playlist_link, debug=False):
 
     # TODO: print out chosen playlist name
     if playlist_link == '':
-        playlist_link = 'https://open.spotify.com/playlist/3ULk7XI8p5pQ0zv0dVbTzs?si=b10cc6737ce84725'
+        playlist_link = 'https://open.spotify.com/playlist/37i9dQZF1E4wc7u6R6iN6E?si=f0b9e880e9bb4593'
         #debug = True
 
     # Parse playlist id from link
@@ -28,7 +28,7 @@ def download_from_link(playlist_link, debug=False):
     music_directory = home + '/Music/' 
     music_subdirectory =  input('Specify directory [press enter if you want to create a directory in music folder]: \n')
     if music_subdirectory == '':
-        music_subdirectory = 'spotify_downloaded_playlist/downtempo_set'
+        music_subdirectory = 'spotify_downloaded_playlist/house'
 
 
 

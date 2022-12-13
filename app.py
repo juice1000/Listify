@@ -42,7 +42,7 @@ def download():
         print(title)
         if not title:
             flash('Title is required!')
-        yt.download_from_link(title, debug=True)
+        yt.download_from_link(title)
     path = 'static/music_files/'
     data = BytesIO()
     zipping(data, path)

@@ -8,15 +8,15 @@ import spotify_get_song_names as spt
 from pathlib import Path
 
 
-def download_from_link(playlist_link, debug=True):
+def download_from_link(playlist_link):
 
     # TODO: print out chosen playlist name
     if playlist_link == '':
         playlist_link = 'https://open.spotify.com/playlist/1QzMPmOyuxetr3Mbw4vBb8?si=17ea6d0eee7b44ca'
-        debug = True
 
     # Parse playlist id from link
-    playlist_id = re.findall(r'playlist/(.*)\?', playlist_link)[0]
+    #playlist_id_re = re.findall(r'playlist\/(.*)\?', playlist_link)
+    #playlist_id = playlist_id_re[0]
 
     #target_file_type = input('Specify file type [default is .wav]: \n')
     #if target_file_type != '.wav' or target_file_type != '.mp3':
@@ -30,15 +30,11 @@ def download_from_link(playlist_link, debug=True):
     #if music_subdirectory == '':
     #    music_subdirectory = 'spotify_downloaded_playlist'
 
-
-
-
     #parent_dir = music_directory + music_subdirectory
-
 
     parent_dir = 'static/music_files'
 
-    song_titles = spt.retrieve_playlist_songs(playlist_id, debug = debug)
+    song_titles = spt.track_data_extractor(playlist_link)
 
     for song in song_titles:
         print(song)
