@@ -1,16 +1,17 @@
-import requests
 from bs4 import BeautifulSoup
-import json
-from selenium.webdriver import Chrome
+from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.firefox import GeckoDriverManager
+from selenium import webdriver
 from selenium.webdriver import ChromeOptions
+from selenium.webdriver import FirefoxOptions
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
-
 from time import sleep
-import re
 
 
 def get_number_of_tracks(soup):
@@ -52,30 +53,46 @@ def extract_song_data(soup, song_count):
         artist_name = track_extract.find('span',"Type__TypeElement-sc-goli3j-0 dvSMET rq2VQ5mb9SDAFWbBIUIn standalone-ellipsis-one-line").contents[0].contents[0]
         tracks.append((song_name, artist_name))
 
-
     return tracks
 
-# using selenium and beautiful soup
-def track_data_extractor(URL):
-    options = ChromeOptions()
-    options.headless = False
 
-    # TODO: needs to be stored on webserver too when we're ready to deploy
-    driver = Chrome(executable_path='/Users/julienlook/Documents/Coding/spotify_downloader/chromedriver', options=options)
+# using selenium and beautiful soup
+def track_data_extractor(URL, browser):
+
+    if browser == 'chrome': 
+        options = ChromeOptions()
+        options.headless = True
+        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
+    elif browser == 'firefox':
+        options = FirefoxOptions()
+        options.headless = True
+        driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()), options=options)
+    else:
+        print(Exception("current browser not supported"))
+    
+
     driver.get(url=URL)
-    #driver.maximize_window()
     actions = ActionChains(driver)
 
     # load soup
     # TODO find a better way to wait for HTML parser to load
     sleep(3)
     soup = BeautifulSoup(driver.page_source, 'html.parser')
-
     song_count = get_number_of_tracks(soup)
 
+    # undo cookies window
+    locator = 'onetrust-accept-btn-handler'
+    WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID,locator))).click()
+    locator = 'Button-sc-y0gtbx-0 hNxTPt CVqkR3tIgVsGD4SvvXS4'
+    try:
+        subscription=  WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CLASS_NAME,locator))).click()
+        print('Success')
+    except:
+        print('no subscription button')
+
     # click on main panel once to enable scrolling
-    locator = 'contentSpacing'
-    WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CLASS_NAME,locator))).click()
+    locator = 'Root__main-view'
+    WebDriverWait(driver, 5).until(EC.visibility_of_element_located((By.CLASS_NAME,locator))).click()
 
     # check if last track is visible by HTML 
     while not is_first_and_last_element_visible(soup, song_count):
@@ -85,11 +102,10 @@ def track_data_extractor(URL):
         sleep(9)
         soup = BeautifulSoup(driver.page_source, 'html.parser')
     
-    print('left loop')
 
-    extract_song_data(soup, song_count)
-    
+    tracks = extract_song_data(soup, song_count)
     driver.quit()
+    return tracks
 
 
 
@@ -98,4 +114,7 @@ def track_data_extractor(URL):
 
 # TODO this needs to be left to the app input prompt
 URL = "https://open.spotify.com/playlist/1QzMPmOyuxetr3Mbw4vBb8"
-track_data_extractor(URL)
+
+# TODO: decide browser based on what we really use
+browser = 'chrome'
+track_data_extractor(URL, browser)
