@@ -61,7 +61,7 @@ def track_data_extractor(URL):
     browser = 'chrome'
     if browser == 'chrome': 
         options = ChromeOptions()
-        options.headless = False
+        options.headless = True
         driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
     elif browser == 'firefox':
         options = FirefoxOptions()
@@ -88,7 +88,7 @@ def track_data_extractor(URL):
         WebDriverWait(driver, 3).until(EC.visibility_of_element_located((By.CLASS_NAME,locator))).click()
         print('disabled all buttons')
     except:
-        print('some buttons were not available')
+        print('button ',locator, 'was not available')
 
     # click on main panel once to enable scrolling
     locator = 'Root__main-view'
