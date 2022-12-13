@@ -51,14 +51,14 @@ def extract_song_data(soup, song_count):
     for track_extract in track_extracts:
         song_name = track_extract.find('div',"Type__TypeElement-sc-goli3j-0 kHHFyx t_yrXoUO3qGsJS4Y6iXX standalone-ellipsis-one-line").contents[0]
         artist_name = track_extract.find('span',"Type__TypeElement-sc-goli3j-0 dvSMET rq2VQ5mb9SDAFWbBIUIn standalone-ellipsis-one-line").contents[0].contents[0]
-        tracks.append((song_name, artist_name))
+        tracks.append(f"{song_name}  by  {artist_name}")
 
     return tracks
 
 
 # using selenium and beautiful soup
-def track_data_extractor(URL, browser):
-
+def track_data_extractor(URL):
+    browser = 'chrome'
     if browser == 'chrome': 
         options = ChromeOptions()
         options.headless = True
@@ -85,7 +85,7 @@ def track_data_extractor(URL, browser):
     WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID,locator))).click()
     locator = 'Button-sc-y0gtbx-0 hNxTPt CVqkR3tIgVsGD4SvvXS4'
     try:
-        subscription=  WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CLASS_NAME,locator))).click()
+        subscription=  WebDriverWait(driver, 3).until(EC.visibility_of_element_located((By.CLASS_NAME,locator))).click()
         print('Success')
     except:
         print('no subscription button')
@@ -113,8 +113,7 @@ def track_data_extractor(URL, browser):
 # TODO: we could create a 2 stream product that can download songs or playlists
 
 # TODO this needs to be left to the app input prompt
-URL = "https://open.spotify.com/playlist/1QzMPmOyuxetr3Mbw4vBb8"
+#URL = "https://open.spotify.com/playlist/1QzMPmOyuxetr3Mbw4vBb8"
 
 # TODO: decide browser based on what we really use
-browser = 'chrome'
-track_data_extractor(URL, browser)
+
