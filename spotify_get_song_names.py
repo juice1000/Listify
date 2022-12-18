@@ -61,16 +61,23 @@ def track_data_extractor(URL):
     browser = 'chrome'
     if browser == 'chrome': 
         options = ChromeOptions()
-        options.headless = True
-        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
     elif browser == 'firefox':
         options = FirefoxOptions()
-        options.headless = True
-        driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()), options=options)
     else:
         print(Exception("current browser not supported"))
     
 
+    options.headless = True
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--no-sandbox")
+
+    if browser == 'chrome': 
+        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
+    elif browser == 'firefox':
+        driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()), options=options)
+    else:
+        print(Exception("current browser not supported"))
+    
     driver.get(url=URL)
     actions = ActionChains(driver)
 
