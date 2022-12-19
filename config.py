@@ -2,11 +2,13 @@ class Config(object):
     DEBUG = False
     TESTING = False
     DATABASE_URI = 'sqlite://:memory:'
-class ProductionConfig(Config):
-    DATABASE_URI = 'mysql://user@localhost/foo'
+class Prod(Config):
+    DOMAIN = '0.0.0.0'
 class Dev(Config):
+    DOMAIN = ''
     ENV="development"
     DEBUG = True
     SECRET_KEY = 'dev'
-class TestingConfig(Config):
+class Test(Config):
     TESTING = True
+    DOMAIN = ''

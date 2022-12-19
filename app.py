@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, url_for, flash, redirect, sen
 from werkzeug.exceptions import abort
 import spotify_get_song_names as spt
 import youtube_downloader as yt
-from config import Dev
+from config import Prod, Dev
 from zipfile import ZipFile
 import os
 from os.path import basename
@@ -10,8 +10,7 @@ from io import BytesIO
 
 import os
 app = Flask(__name__)
-#environment_configuration = os.environ['CONFIGURATION_SETUP']
-#environment_configuration = Dev
+env_conf = Prod
 #app.config.from_object(environment_configuration)
 
 
@@ -51,4 +50,4 @@ def download():
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(env_conf.DOMAIN)
