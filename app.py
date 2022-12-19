@@ -50,4 +50,4 @@ def download():
 
 
 if __name__ == "__main__":
-    app.run(env_conf.DOMAIN)
+    app.run(host=env_conf.DOMAIN)
