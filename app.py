@@ -10,7 +10,7 @@ import shutil
 
 import os
 app = Flask(__name__)
-env_conf = Dev
+env_conf = Prod
 #app.config.from_object(environment_configuration)
 
 
@@ -41,7 +41,8 @@ def download():
         print(title)
         if not title:
             flash('Title is required!')
-        yt.download_from_link(title)
+        filetype = request.form['filetype']
+        yt.download_from_link(title, filetype)
     path = 'static/music_files/'
     data = BytesIO()
     zipping(data, path)
