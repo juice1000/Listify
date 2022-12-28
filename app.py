@@ -16,12 +16,10 @@ env_conf = Prod
 
 @app.route('/')
 def index():
-    path = 'static/music_files/'
     return render_template('index.html')
 
 
 def zipping(data, dirName):
-
     # create a ZipFile object
     with ZipFile(data, 'w') as zipObj:
     # Iterate over all the files in directory
@@ -47,10 +45,7 @@ def download():
     data = BytesIO()
     zipping(data, path)
     data.seek(0)
-    @after_this_request
-    def remove_file(response):
-        shutil.rmtree(path, ignore_errors=False, onerror=None)
-        return response
+    shutil.rmtree(path, ignore_errors=False, onerror=None)
     return send_file(data, mimetype='application/zip', as_attachment=True, download_name='music_playlist.zip')
 
 

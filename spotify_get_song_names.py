@@ -31,7 +31,8 @@ def is_first_and_last_element_visible(soup, song_count):
     if len(last_element) == 0:
         return False
     if len(first_element) == 0: 
-        return Exception('First Element lost on scrolling')
+        print(Exception('First Element lost on scrolling'))
+        return False
     return True
 
 
@@ -40,7 +41,7 @@ def scroll(actions):
     for i in range(20):
         actions.key_down(Keys.ARROW_DOWN)
     actions.perform()
-    ('\nscrolled down once')
+    print('\nscrolled down once')
     return
 
 
@@ -58,26 +59,14 @@ def extract_song_data(soup, song_count):
 
 # using selenium and beautiful soup
 def track_data_extractor(URL):
-    browser = 'chrome'
-    if browser == 'chrome': 
-        options = ChromeOptions()
-    elif browser == 'firefox':
-        options = FirefoxOptions()
-    else:
-        print(Exception("current browser not supported"))
-    
+
+    options = ChromeOptions()
 
     options.headless = True
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--no-sandbox")
 
-    if browser == 'chrome': 
-        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
-    elif browser == 'firefox':
-        driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()), options=options)
-    else:
-        print(Exception("current browser not supported"))
-    
+    driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
     driver.get(url=URL)
     actions = ActionChains(driver)
 
@@ -106,7 +95,7 @@ def track_data_extractor(URL):
         scroll(actions)
         # reinitialize soup
         # TODO: get a proper sleep time to see if elements really loaded
-        sleep(9)
+        sleep(3)
         soup = BeautifulSoup(driver.page_source, 'html.parser')
     
 
@@ -118,5 +107,3 @@ def track_data_extractor(URL):
 
 # TODO: we need a function that checks if the input source is truly a playlist of just a song
 # TODO: we could create a 2 stream product that can download songs or playlists
-
-# TODO: decide browser based on what we really use
