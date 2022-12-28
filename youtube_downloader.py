@@ -8,7 +8,7 @@ import spotify_get_song_names as spt
 from pathlib import Path
 
 
-def download_from_link(playlist_link):
+def download_from_link(playlist_link, filetype):
 
     # TODO: print out chosen playlist name
     if playlist_link == '':
@@ -22,7 +22,7 @@ def download_from_link(playlist_link):
     #if target_file_type != '.wav' or target_file_type != '.mp3':
     #    print('No valid input found, music files will be converted to .wav\n')
     #    target_file_type = '.wav'
-    target_file_type = '.wav'
+    target_file_type = filetype
 
     home = str(Path.home())
     #music_directory = home + '/Music/' 

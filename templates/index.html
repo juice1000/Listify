@@ -12,11 +12,17 @@
             <input class="insert" type="text" name="playlist" 
             placeholder="Paste Spotify Playlist Link here"
             value="{{ request.form['playlist'] }}"></input>
+
+            <br></br>
+            <label for="filetype">Choose a filetype:</label>
+            <select id="filetype" name="filetype" class="form-options">
+                <option value=".wav">wav</option>
+                <option value=".mp3">mp3</option>
+            </select>
         </div>
-        <h5> - More Download Options -</h5>
-        <h5>file format</h5>
+
         <div class="form-group">
-            <input type="submit" value='Download' class="btn btn-primary"></input>
+            <input type="submit" value='Download' class="button"></input>
         </div>
     </form>
 
