@@ -4,7 +4,7 @@ from pytube import Search, YouTube
 from pytube.cli import on_progress
 import subprocess
 import os
-import local_scripts._deprecated_spotify_get_song_names as spt
+import _deprecated_spotify_get_song_names as spt
 from pathlib import Path
 
 
