@@ -31,3 +31,4 @@ webdriver-manager==3.8.5
 Werkzeug==2.2.2
 wsproto==1.2.0
 zipp==3.11.0
+celery==5.2.7
