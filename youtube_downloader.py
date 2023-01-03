@@ -4,37 +4,15 @@ from pytube import Search, YouTube
 from pytube.cli import on_progress
 import subprocess
 import os
-import spotify_get_song_names as spt
+
 from pathlib import Path
 
 
-def download_from_link(playlist_link, filetype):
+def download_from_link(song_titles, filetype):
 
-    # TODO: print out chosen playlist name
-    if playlist_link == '':
-        playlist_link = 'https://open.spotify.com/playlist/1QzMPmOyuxetr3Mbw4vBb8?si=17ea6d0eee7b44ca'
-
-    # Parse playlist id from link
-    #playlist_id_re = re.findall(r'playlist\/(.*)\?', playlist_link)
-    #playlist_id = playlist_id_re[0]
-
-    #target_file_type = input('Specify file type [default is .wav]: \n')
-    #if target_file_type != '.wav' or target_file_type != '.mp3':
-    #    print('No valid input found, music files will be converted to .wav\n')
-    #    target_file_type = '.wav'
-    target_file_type = filetype
-
-    home = str(Path.home())
-    #music_directory = home + '/Music/' 
-    #music_subdirectory =  input('Specify directory [press enter if you want to create a directory in music folder]: \n')
-    #if music_subdirectory == '':
-    #    music_subdirectory = 'spotify_downloaded_playlist'
-
-    #parent_dir = music_directory + music_subdirectory
+    # TODO: handle wrong or empty playlist string
 
     parent_dir = 'static/music_files'
-
-    song_titles = spt.track_data_extractor(playlist_link)
 
     for song in song_titles:
         print(song)
@@ -49,7 +27,7 @@ def download_from_link(playlist_link, filetype):
 
                 # Give new filename the specified file convention
                 default_filename = stream.default_filename
-                filename = default_filename[:len(default_filename)-4] + target_file_type
+                filename = default_filename[:len(default_filename)-4] + filetype
 
                 # Transform file with ffmpeg
                 subprocess.run([

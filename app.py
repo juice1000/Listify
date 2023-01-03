@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash, send_file, Response
+from flask import Flask, render_template, request, flash, send_file, Response, redirect, url_for, session, jsonify
 import spotify_get_song_names as spt
 import youtube_downloader as yt
 from config import Prod, Dev
@@ -8,17 +8,22 @@ from os.path import basename
 from io import BytesIO
 import shutil
 import time
-
+import spotify_get_song_names as spt
+from celery import Celery
 import os
+
+# Initialize Flask App
 app = Flask(__name__)
-env_conf = Prod
-#app.config.from_object(environment_configuration)
+app.config.from_object(Prod)
+
+# Initialize Celery
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery.conf.update(app.config)
 
 
 @app.route('/')
 def index():
     return render_template('index.html')
-
 
 def zipping(data, dirName):
     # create a ZipFile object
@@ -32,16 +37,21 @@ def zipping(data, dirName):
                 zipObj.write(filePath, basename(filePath))
         
         
-
 @app.route('/download', methods=('GET', 'POST'))
 def download():
     if request.method == 'POST':
-        title = request.form['playlist']
-        print(title)
-        if not title:
+        playlist_id = request.json["playlist_id"]
+        filetype = request.json["filetype"]
+        print(playlist_id)
+        if not playlist_id:
             flash('Title is required!')
-        filetype = request.form['filetype']
-        yt.download_from_link(title, filetype)
+        # First third of progress bar would be song title retrieval, second third would be download, last would be zipping
+        task = background_process.apply_async(args=(playlist_id, filetype))
+        result = jsonify({}), 202, {'Location': url_for('progress', task_id=task.id)}
+        return result
+        #return Response(spt.track_data_extractor(title), mimetype= 'text/event-stream')
+    #Response(download_music_files(song_tiles = song_titles, filetype = filetype))
+    time.sleep(10)
     path = 'static/music_files/'
     data = BytesIO()
     zipping(data, path)
@@ -50,19 +60,49 @@ def download():
     return send_file(data, mimetype='application/zip', as_attachment=True, download_name='music_playlist.zip')
 
 
+@celery.task(bind=True)
+def background_process(self, playlist_link, filetype):
+    song_titles = spt.track_data_extractor(playlist_link)
+    self.update_state(state='PROGRESS', meta={'current': 30, 'total': 100, 'status': 'finished extracting spotify song data'})
+    yt.download_from_link(song_titles, filetype)
+    self.update_state(state='PROGRESS', meta={'current': 80, 'total': 100, 'status': 'finished downloading songs'})
+    time.sleep(5)
+    # we have to think about the zipping method
+    return {'current': 100, 'total': 100, 'status': 'Task completed!',
+            'result': 42}
 
-@app.route('/progress')
-def progress():
-	def generate():
-		x = 0
-		
-		while x <= 100:
-			yield "data:" + str(x) + "\n\n"
-			x = x + 10
-			time.sleep(0.5)
 
-	return Response(generate(), mimetype= 'text/event-stream')
+@app.route('/progress/<task_id>', methods=('GET', 'POST'))
+def progress(task_id):
+    task = background_process.AsyncResult(task_id)
+    if task.state == 'PENDING':
+        # job did not start yet
+        response = {
+            'state': task.state,
+            'current': 0,
+            'total': 1,
+            'status': 'Pending...'
+        }
+    elif task.state != 'FAILURE':
+        response = {
+            'state': task.state,
+            'current': task.info.get('current', 0),
+            'total': task.info.get('total', 1),
+            'status': task.info.get('status', '')
+        }
+        if 'result' in task.info:
+            response['result'] = task.info['result']
+    else:
+        # something went wrong in the background job
+        response = {
+            'state': task.state,
+            'current': 1,
+            'total': 1,
+            'status': str(task.info),  # this is the exception raised
+        }
+    json_response = jsonify(response)
+    return json_response
 
 
 if __name__ == "__main__":
-    app.run(host=env_conf.DOMAIN)
+    app.run(host=app.config.get("DOMAIN"))
