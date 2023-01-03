@@ -51,7 +51,10 @@ def download():
         return result
         #return Response(spt.track_data_extractor(title), mimetype= 'text/event-stream')
     #Response(download_music_files(song_tiles = song_titles, filetype = filetype))
-    time.sleep(10)
+
+
+@app.route('/send_zip_file', methods=('GET', 'POST'))
+def send_zip_file():
     path = 'static/music_files/'
     data = BytesIO()
     zipping(data, path)
@@ -68,6 +71,7 @@ def background_process(self, playlist_link, filetype):
     self.update_state(state='PROGRESS', meta={'current': 80, 'total': 100, 'status': 'finished downloading songs'})
     time.sleep(5)
     # we have to think about the zipping method
+    
     return {'current': 100, 'total': 100, 'status': 'Task completed!',
             'result': 42}
 

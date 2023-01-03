@@ -72,6 +72,8 @@
                         // show result
                         $(status_div.childNodes[3]).text('Result: ' + data['result']);
                         $(status_div).remove();
+                        // redirect to url to download zip file
+                        window.location = "/send_zip_file"
                     }
                     else {
                         // something unexpected happened
