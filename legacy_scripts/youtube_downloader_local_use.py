@@ -12,7 +12,7 @@ def download_from_link(playlist_link, debug=False):
 
     # TODO: print out chosen playlist name
     if playlist_link == '':
-        playlist_link = 'https://open.spotify.com/playlist/37i9dQZF1E4wc7u6R6iN6E?si=f0b9e880e9bb4593'
+        playlist_link = 'https://open.spotify.com/playlist/3ULk7XI8p5pQ0zv0dVbTzs?si=7ba6395d1f7443c5'
         #debug = True
 
     # Parse playlist id from link
@@ -28,14 +28,14 @@ def download_from_link(playlist_link, debug=False):
     music_directory = home + '/Music/' 
     music_subdirectory =  input('Specify directory [press enter if you want to create a directory in music folder]: \n')
     if music_subdirectory == '':
-        music_subdirectory = 'spotify_downloaded_playlist/house'
+        music_subdirectory = 'spotify_downloaded_playlist/downtempo_set'
 
 
 
 
     parent_dir = music_directory + music_subdirectory
 
-
+    print('will save in ', parent_dir)
     #parent_dir = 'static/music_files'
 
     song_titles = spt.retrieve_playlist_songs(playlist_id, debug = debug)
@@ -48,12 +48,20 @@ def download_from_link(playlist_link, debug=False):
             try: 
                 yt = YouTube('http://youtube.com/watch?v=' + id, on_progress_callback=on_progress)
                 stream = yt.streams.get_audio_only()
-                stream.download(parent_dir)
-                print('success!!')
 
                 # Give new filename the specified file convention
                 default_filename = stream.default_filename
                 filename = default_filename[:len(default_filename)-4] + target_file_type
+
+                # stop if file exists
+                full_path = os.path.join(parent_dir, filename)
+                is_file = os.path.exists(full_path)
+                if os.path.exists(full_path):
+                    break
+
+                stream.download(parent_dir)
+                print('success!!')
+
 
                 # Transform file with ffmpeg
                 subprocess.run([
