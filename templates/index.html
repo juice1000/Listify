@@ -5,26 +5,95 @@
     <img src="static/images/spotify_logo.png" alt="Logo" class="picture">
     <h1>{% block title %} Welcome to Listify! {% endblock %}</h1>
     <h5>Download your Spotify playlists and get the song files in highest quality</h5>
-    
-    <form method="post" action="{{url_for('download')}}">
-        <div class="form-group">
-            <label for="content"></label>
-            <input class="insert" type="text" name="playlist" 
-            placeholder="Paste Spotify Playlist Link here"
-            value="{{ request.form['playlist'] }}"></input>
 
-            <br></br>
-            <label for="filetype">Choose a filetype:</label>
-            <select id="filetype" name="filetype" class="form-options">
-                <option value=".wav">wav</option>
-                <option value=".mp3">mp3</option>
-            </select>
-        </div>
 
-        <div class="form-group">
-            <input type="submit" value='Download' class="button"></input>
-        </div>
-    </form>
+    <div id="progress"></div>
+
+    <div class="form-group">
+        <label for="content"></label>
+        <input class="insert" type="text" name="playlist" id="playlist"
+        placeholder="Paste Spotify Playlist Link here"></input>
+
+        <br></br>
+        <label for="filetype">Choose a filetype:</label>
+        <select id="filetype" name="filetype" class="form-options">
+            <option value=".wav">wav</option>
+            <option value=".mp3">mp3</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <input type="submit" value='Download' class="button" onclick="return start_long_task(document.getElementById('playlist').value, document.getElementById('filetype').value)"></input>
+    </div>
+
+    <script>
+        function start_long_task(playlist_id, filetype) {
+            // add task status elements 
+            div = $('<div id="progress"><div></div><div>0%</div><div>...</div><div>&nbsp;</div></div>');
+            $('#progress').append(div);
+            
+            // create a progress bar
+            var nanobar = new Nanobar({
+                bg: '#44f',
+                target: div[0].childNodes[0]
+            });
+
+            // send ajax POST request to start background job
+            $.ajax({
+                type: 'POST',
+                url: '/download',
+                data: JSON.stringify({playlist_id: playlist_id, filetype: filetype }),
+                contentType: "application/json",
+                dataType: 'json',
+                success: function(data, status, request) {
+                    status_url = request.getResponseHeader('Location');
+                    update_progress(status_url, nanobar, div[0]);
+                },
+                error: function() {
+                    alert('Unexpected error');
+                }
+            });
+        }
+
+    </script>
+
+    <script>
+
+        function update_progress(status_url, nanobar, status_div) {
+            // send GET request to status URL
+            $.getJSON(status_url, function(data) {
+                // update UI
+                percent = parseInt(data['current'] * 100 / data['total']);
+                nanobar.go(percent);
+                $(status_div.childNodes[1]).text(percent + '%');
+                $(status_div.childNodes[2]).text(data['status']);
+                if (data['state'] != 'PENDING' && data['state'] != 'PROGRESS') {
+                    if ('result' in data) {
+                        // show result
+                        $(status_div.childNodes[3]).text('Result: ' + data['result']);
+                        $(status_div).remove();
+                        // redirect to url to download zip file
+                        window.location = "/send_zip_file"
+                    }
+                    else {
+                        // something unexpected happened
+                        $(status_div.childNodes[3]).text('Result: ' + data['state']);
+                        setTimeout(function() {
+                            $(status_div).remove();
+                        }, 3000);
+                        
+                    }
+                }
+                else {
+                    // rerun every second
+                    setTimeout(function() {
+                        update_progress(status_url, nanobar, status_div);
+                    }, 1000);
+                }
+            });
+        }
+    </script>
+
 
 {% endblock %}
 
