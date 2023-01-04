@@ -49,9 +49,7 @@ def download():
         task = background_process.apply_async(args=(playlist_id, filetype))
         result = jsonify({}), 202, {'Location': url_for('progress', task_id=task.id)}
         return result
-        #return Response(spt.track_data_extractor(title), mimetype= 'text/event-stream')
-    #Response(download_music_files(song_tiles = song_titles, filetype = filetype))
-
+        
 
 @app.route('/send_zip_file', methods=('GET', 'POST'))
 def send_zip_file():
@@ -65,12 +63,19 @@ def send_zip_file():
 
 @celery.task(bind=True)
 def background_process(self, playlist_link, filetype):
+    process = 0
     song_titles = spt.track_data_extractor(playlist_link)
-    self.update_state(state='PROGRESS', meta={'current': 30, 'total': 100, 'status': 'finished extracting spotify song data'})
-    yt.download_from_link(song_titles, filetype)
-    self.update_state(state='PROGRESS', meta={'current': 80, 'total': 100, 'status': 'finished downloading songs'})
-    time.sleep(5)
-    # we have to think about the zipping method
+    process = 30
+    single_song_percent = int(60 / len(song_titles))
+    self.update_state(state='PROGRESS', meta={'current': process, 'total': 100, 'status': 'downloading songs'})
+
+    for song in song_titles:
+        yt.download_from_link(song, filetype)
+        process += single_song_percent
+        self.update_state(state='PROGRESS', meta={'current': process, 'total': 100, 'status': 'downloading songs'})
+
+    self.update_state(state='PROGRESS', meta={'current': 95, 'total': 100, 'status': 'finished downloading songs'})
+    time.sleep(2)
     
     return {'current': 100, 'total': 100, 'status': 'Task completed!',
             'result': 42}
@@ -85,7 +90,7 @@ def progress(task_id):
             'state': task.state,
             'current': 0,
             'total': 1,
-            'status': 'Pending...'
+            'status': 'Scanning through playlist...'
         }
     elif task.state != 'FAILURE':
         response = {

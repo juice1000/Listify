@@ -5,39 +5,35 @@ from pytube.cli import on_progress
 import subprocess
 import os
 
-from pathlib import Path
 
-
-def download_from_link(song_titles, filetype):
+def download_from_link(song_title, filetype):
 
     # TODO: handle wrong or empty playlist string
 
     parent_dir = 'static/music_files'
+    print(song_title)
+    s = Search(song_title)
+    downloadable_ids = re.findall(r'videoId=(.{11})', str(s.results))
+    for id in downloadable_ids:
+        try: 
+            yt = YouTube('http://youtube.com/watch?v=' + id, on_progress_callback=on_progress)
+            stream = yt.streams.get_audio_only()
+            stream.download(parent_dir)
+            print('success!!')
 
-    for song in song_titles:
-        print(song)
-        s = Search(song)
-        downloadable_ids = re.findall(r'videoId=(.{11})', str(s.results))
-        for id in downloadable_ids:
-            try: 
-                yt = YouTube('http://youtube.com/watch?v=' + id, on_progress_callback=on_progress)
-                stream = yt.streams.get_audio_only()
-                stream.download(parent_dir)
-                print('success!!')
+            # Give new filename the specified file convention
+            default_filename = stream.default_filename
+            filename = default_filename[:len(default_filename)-4] + filetype
 
-                # Give new filename the specified file convention
-                default_filename = stream.default_filename
-                filename = default_filename[:len(default_filename)-4] + filetype
+            # Transform file with ffmpeg
+            subprocess.run([
+            'ffmpeg', '-loglevel', 'warning',
+            '-i', os.path.join(parent_dir, default_filename),
+            os.path.join(parent_dir, filename)])
 
-                # Transform file with ffmpeg
-                subprocess.run([
-                'ffmpeg', '-loglevel', 'warning',
-                '-i', os.path.join(parent_dir, default_filename),
-                os.path.join(parent_dir, filename)])
-
-                # Remove .mov file and keep .wav format
-                os.remove(parent_dir + '/' + default_filename)
-                # After successful run we're done
-                break
-            except Exception as e:
-                print(e)
+            # Remove .mov file and keep .wav format
+            os.remove(parent_dir + '/' + default_filename)
+            # After successful run we're done
+            break
+        except Exception as e:
+            print(e)
