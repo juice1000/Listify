@@ -78,6 +78,10 @@
                     else {
                         // something unexpected happened
                         $(status_div.childNodes[3]).text('Result: ' + data['state']);
+                        setTimeout(function() {
+                            $(status_div).remove();
+                        }, 3000);
+                        
                     }
                 }
                 else {
