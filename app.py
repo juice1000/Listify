@@ -80,7 +80,7 @@ def background_process(self, playlist_link, filetype):
         process += single_song_percent
         self.update_state(state='PROGRESS', meta={'current': process, 'total': 100, 'status': 'downloading songs'})
 
-    self.update_state(state='PROGRESS', meta={'current': 95, 'total': 100, 'status': 'FINISHED DOWNLOADING SONGS', 'intermediate_result': 42})
+    self.update_state(state='PROGRESS', meta={'current': 95, 'total': 100, 'status': 'finished downloading songs', 'intermediate_result': 42})
     time.sleep(2)
 
     path = os.path.join(os.getcwd(), 'static', 'music_files')
