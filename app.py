@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash, send_file, Response, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, flash, send_file, url_for, jsonify
 import spotify_get_song_names as spt
 import youtube_downloader as yt
 from config import Prod, Dev
