@@ -57,7 +57,7 @@ def download():
 
 @app.route('/send_zip_file', methods=('GET', 'POST'))
 def send_zip_file():
-    path = os.path.join(os.getcwd() + 'static', 'music_files')
+    path = os.path.join(os.getcwd(), 'static', 'music_files')
     data = BytesIO()
     print('existing before zipping ', os.path.exists(path))
     zipping(data, path)

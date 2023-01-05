@@ -34,7 +34,8 @@ def download_from_link(song_title, filetype):
 
             # Remove .mov file and keep .wav format
             os.remove(os.path.join(parent_dir, default_filename))
-            print('file is here: ', os.path.exists(os.path.join(parent_dir, default_filename)))
+            print('file is here: ', os.path.join(parent_dir, filename))
+            print('file exists: ', os.path.exists(os.path.join(parent_dir, filename)))
             # After successful run we're done
             break
         except Exception as e:
