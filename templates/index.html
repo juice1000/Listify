@@ -68,8 +68,10 @@
                 $(status_div.childNodes[1]).text(percent + '%');
                 $(status_div.childNodes[2]).text(data['status']);
                 if (data['state'] != 'PENDING' && data['state'] != 'PROGRESS') {
+                    console.log('CURRENT MONITORING DATA', data)
                     if ('intermediate_result' in data) {
                         // show result
+                        console.log('MONITORING DATA INSIDE LOOP', data)
                         $(status_div.childNodes[3]).text('Result: ' + data['result']);
                         $(status_div).remove();
                         // redirect to url to download zip file
