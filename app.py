@@ -87,6 +87,7 @@ def background_process(self, playlist_link, filetype):
     print('path still existing: ', os.path.exists(path))
     while os.path.exists(path):
         print ('waiting for files to be downloaded')
+        time.sleep(10)
 
     print('files successfully downloaded')
     return {'current': 100, 'total': 100, 'status': 'Task completed!',
