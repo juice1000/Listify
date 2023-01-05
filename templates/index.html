@@ -68,7 +68,7 @@
                 $(status_div.childNodes[1]).text(percent + '%');
                 $(status_div.childNodes[2]).text(data['status']);
                 if (data['state'] != 'PENDING' && data['state'] != 'PROGRESS') {
-                    if ('result' in data) {
+                    if ('intermediate_result' in data) {
                         // show result
                         $(status_div.childNodes[3]).text('Result: ' + data['result']);
                         $(status_div).remove();

@@ -80,9 +80,15 @@ def background_process(self, playlist_link, filetype):
         process += single_song_percent
         self.update_state(state='PROGRESS', meta={'current': process, 'total': 100, 'status': 'downloading songs'})
 
-    self.update_state(state='PROGRESS', meta={'current': 95, 'total': 100, 'status': 'finished downloading songs'})
+    self.update_state(state='PROGRESS', meta={'current': 95, 'total': 100, 'status': 'finished downloading songs', 'intermediate_result': 42})
     time.sleep(2)
-    
+
+    path = os.path.join(os.getcwd(), 'static', 'music_files')
+    print('path still existing: ', os.path.exists(path))
+    while os.path.exists(path):
+        print ('waiting for files to be downloaded')
+
+    print('files successfully downloaded')
     return {'current': 100, 'total': 100, 'status': 'Task completed!',
             'result': 42}
 
