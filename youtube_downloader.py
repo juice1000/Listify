@@ -10,7 +10,8 @@ def download_from_link(song_title, filetype):
 
     # TODO: handle wrong or empty playlist string
 
-    parent_dir = os.getcwd() + '/static/music_files'
+    parent_dir = os.path.join(os.getcwd(), 'static', 'music_files')
+    print(parent_dir)
     print(song_title)
     s = Search(song_title)
     downloadable_ids = re.findall(r'videoId=(.{11})', str(s.results))
@@ -32,7 +33,8 @@ def download_from_link(song_title, filetype):
             os.path.join(parent_dir, filename)])
 
             # Remove .mov file and keep .wav format
-            os.remove(parent_dir + '/' + default_filename)
+            os.remove(os.path.join(parent_dir, default_filename))
+            print('file is here: ', os.path.exists(os.path.join(parent_dir, default_filename)))
             # After successful run we're done
             break
         except Exception as e:
