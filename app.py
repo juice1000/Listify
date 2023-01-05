@@ -29,10 +29,14 @@ def zipping(data, dirName):
     # create a ZipFile object
     with ZipFile(data, 'w') as zipObj:
     # Iterate over all the files in directory
+        print('existing in zipping ', os.path.exists(dirName))
+        
         for folderName, subfolders, filenames in os.walk(dirName):
             for filename in filenames:
                 #create complete filepath of file in directory
+
                 filePath = os.path.join(folderName, filename)
+                print('filepath to write: ', filePath)
                 # Add file to zip
                 zipObj.write(filePath, basename(filePath))
         
@@ -55,8 +59,10 @@ def download():
 def send_zip_file():
     path = os.getcwd() + '/static/music_files'
     data = BytesIO()
+    print('existing before zipping ', os.path.exists(path))
     zipping(data, path)
     data.seek(0)
+    print('existing after seek ', os.path.exists(path))
     shutil.rmtree(path, ignore_errors=False, onerror=None)
     return send_file(data, mimetype='application/zip', as_attachment=True, download_name='music_playlist.zip')
 
