@@ -10,7 +10,7 @@ def download_from_link(song_title, filetype):
 
     # TODO: handle wrong or empty playlist string
 
-    parent_dir = 'static/music_files'
+    parent_dir = os.getcwd() + '/static/music_files'
     print(song_title)
     s = Search(song_title)
     downloadable_ids = re.findall(r'videoId=(.{11})', str(s.results))
