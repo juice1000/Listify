@@ -8,7 +8,6 @@ class Config(object):
     CELERY_RESULT_BACKEND = os.environ.get(
         "REDIS_URL", "redis://"
     )
-    BROKER_POOL_LIMIT = 1
     CELERY_SEND_SENT_EVENT = True
 class Prod(Config):
     DOMAIN = '0.0.0.0'
