@@ -32,6 +32,27 @@ local_download_directory = os.path.join(os.getcwd(), 'static', 'music_files')
 def index():
     return render_template('index.html')
 
+        
+@app.route('/download', methods=('GET', 'POST'))
+def download():
+    if request.method == 'POST':
+        playlist_id = request.json["playlist_id"]
+        filetype = request.json["filetype"]
+        print(playlist_id)
+        if not playlist_id:
+            flash('Title is required!')
+        # First third of progress bar would be song title retrieval, second third would be download, last would be zipping
+        playlist_too_long = spt.playlist_too_long(playlist_id)
+
+        if playlist_too_long:
+            # load window and ask for prompt
+            print("playlist too long")
+
+        task = background_process.apply_async(args=(playlist_id, filetype))
+        result = jsonify({}), 202, {'Location': url_for('progress', task_id=task.id)}
+        return result
+
+
 def zipping(data, dirName):
     # create a ZipFile object
     with ZipFile(data, 'w') as zipObj:
@@ -46,21 +67,7 @@ def zipping(data, dirName):
                 print('filepath to write: ', filePath)
                 # Add file to zip
                 zipObj.write(filePath, basename(filePath))
-        
-        
-@app.route('/download', methods=('GET', 'POST'))
-def download():
-    if request.method == 'POST':
-        playlist_id = request.json["playlist_id"]
-        filetype = request.json["filetype"]
-        print(playlist_id)
-        if not playlist_id:
-            flash('Title is required!')
-        # First third of progress bar would be song title retrieval, second third would be download, last would be zipping
-        task = background_process.apply_async(args=(playlist_id, filetype))
-        result = jsonify({}), 202, {'Location': url_for('progress', task_id=task.id)}
-        return result
-        
+
 
 @app.route('/send_zip_file', methods=('GET', 'POST'))
 def send_zip_file():

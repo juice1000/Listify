@@ -11,6 +11,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
+import requests
 from time import sleep
 
 
@@ -76,6 +77,10 @@ def track_data_extractor(URL):
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     song_count = get_number_of_tracks(soup)
 
+    # Limiter to downloadable song count
+    if song_count > 10:
+        song_count = 10
+    
     # undo cookies window
     try:
         locator = 'onetrust-accept-btn-handler'
@@ -104,6 +109,12 @@ def track_data_extractor(URL):
     return tracks
 
 
+def playlist_too_long(URL):
+    page = requests.get(URL)
+    soup = BeautifulSoup(page.content, features='lxml')
 
-# TODO: we need a function that checks if the input source is truly a playlist of just a song
-# TODO: we could create a 2 stream product that can download songs or playlists
+    song_count = get_number_of_tracks(soup)
+    
+    if song_count > 10:
+        return True
+    return False
