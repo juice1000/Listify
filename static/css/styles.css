@@ -1,0 +1,35 @@
+.page {
+    margin-top: 1em;
+    background-color: #39b91d
+}
+
+.insert {
+    width: 70%;
+    border-radius: 10px;
+    border-color: black;
+    padding: 12px;
+}
+
+.button {
+    border-radius: 10px;
+    padding: 15px;
+    color: white;
+    background-color: black;
+    border-color: white;
+    box-shadow: none;
+    font-size: 1rem;
+}
+
+.picture {
+    width: 50%;
+    transform: rotate(180deg)
+}
+
+.form-options {
+    border-radius: 50px;
+    padding: 7px;
+    color: white;
+    background-color: black;
+    border-color: white;
+
+}
