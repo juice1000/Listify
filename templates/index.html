@@ -68,7 +68,7 @@
                 $(status_div.childNodes[1]).text(percent + '%');
                 $(status_div.childNodes[2]).text(data['status']);
                 if (data['state'] != 'PENDING' && data['state'] != 'PROGRESS') {
-                    if (data['status'] == 'finished downloading songs') {
+                    if (data['status'] == 'Finished downloads! Zipping now...') {
                         // show result
                         $(status_div.childNodes[3]).text('Result: ' + data['result']);
                         $(status_div).remove();
@@ -88,7 +88,7 @@
                     // rerun every second
                     setTimeout(function() {
                         update_progress(status_url, nanobar, status_div);
-                    }, 1000);
+                    }, 3000);
                 }
             });
         }

@@ -11,6 +11,7 @@ import time
 import spotify_get_song_names as spt
 from celery import Celery
 import os
+import boto3
 
 # Initialize Flask App
 app = Flask(__name__)
@@ -20,6 +21,12 @@ app.config.from_object(Prod)
 celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
 
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_REGION = os.getenv('AWS_REGION')
+AWS_BUCKET_NAME = os.getenv('AWS_BUCKET_NAME')
+
+local_download_directory = os.path.join(os.getcwd(), 'static', 'music_files')
 
 @app.route('/')
 def index():
@@ -57,40 +64,63 @@ def download():
 
 @app.route('/send_zip_file', methods=('GET', 'POST'))
 def send_zip_file():
-    path = os.path.join(os.getcwd(), 'static', 'music_files')
+    path = local_download_directory
+    os.makedirs(path)
+    # initialize active storage
+    s3 = boto3.client(
+    's3',
+    region_name=AWS_REGION,
+    aws_access_key_id=AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+    )
+
+    # download files into local directory
+    for key in s3.list_objects(Bucket=AWS_BUCKET_NAME)['Contents']:
+        key_filename = key["Key"].split("public/", 1)[1]
+        download_filename = os.path.join(path, key_filename)
+        s3.download_file(Bucket=AWS_BUCKET_NAME, Key=key['Key'], Filename=download_filename)
+        s3.delete_object(Bucket=AWS_BUCKET_NAME, Key=key['Key'])
+    
     data = BytesIO()
-    print('existing before zipping ', os.path.exists(path))
     zipping(data, path)
     data.seek(0)
-    print('existing after seek ', os.path.exists(path))
     shutil.rmtree(path, ignore_errors=False, onerror=None)
     return send_file(data, mimetype='application/zip', as_attachment=True, download_name='music_playlist.zip')
 
 
 @celery.task(bind=True)
 def background_process(self, playlist_link, filetype):
+    path = local_download_directory
     process = 0
     song_titles = spt.track_data_extractor(playlist_link)
     process = 30
     single_song_percent = int(60 / len(song_titles))
     self.update_state(state='PROGRESS', meta={'current': process, 'total': 100, 'status': 'downloading songs'})
 
+    # initialize active storage
+    s3 = boto3.client(
+    's3',
+    region_name=AWS_REGION,
+    aws_access_key_id=AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+    )
+
     for song in song_titles:
-        yt.download_from_link(song, filetype)
+        filename = yt.download_from_link(song, filetype)
+        self.update_state(state='PROGRESS', meta={'current': process, 'total': 100, 'status': 'downloading songs'})
+        filepath = os.path.join(path, filename)
+        if os.path.exists(filepath):
+            # upload to active storage here
+            key = 'public/' + filename
+            s3.upload_file(Filename=filepath, Bucket=AWS_BUCKET_NAME, Key=key)
+
         process += single_song_percent
         self.update_state(state='PROGRESS', meta={'current': process, 'total': 100, 'status': 'downloading songs'})
 
-    self.update_state(state='ALMOST', meta={'current': 95, 'total': 100, 'status': 'finished downloading songs', 'intermediate_result': 42})
+    shutil.rmtree(path)
+    self.update_state(state='SUCCESS', meta={'current': 100, 'total': 100, 'status': 'Finished downloads! Zipping now...','result': 42})
     time.sleep(2)
-
-    path = os.path.join(os.getcwd(), 'static', 'music_files')
-    print('path still existing: ', os.path.exists(path))
-    while os.path.exists(path):
-        print ('waiting for files to be downloaded')
-        time.sleep(10)
-
-    print('files successfully downloaded')
-    return {'current': 100, 'total': 100, 'status': 'Task completed!',
+    return {'current': 100, 'total': 100, 'status': 'Finished downloads! Zipping now...',
             'result': 42}
 
 
