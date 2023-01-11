@@ -2,11 +2,14 @@
 
 {% block content %}
 
-    <img src="static/images/spotify_logo.png" alt="Logo" class="picture">
+    <div style="display: flex; flex-wrap: wrap-reverse;">
+        <img src="static/images/spotify_logo.png" alt="Logo" class="picture">
+        <div class="popup" id="popup"></div>
+    </div>
+    
     <h1>{% block title %} Welcome to Listify! {% endblock %}</h1>
     <h5>Download your Spotify playlists and get the song files in highest quality</h5>
     
-    <div class="popup" id="popup"></div>
     <div id="progress"></div>
 
     <div class="form-group">
