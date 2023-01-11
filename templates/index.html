@@ -2,11 +2,14 @@
 
 {% block content %}
 
-    <img src="static/images/spotify_logo.png" alt="Logo" class="picture">
+    <div style="display: flex; flex-wrap: wrap-reverse;">
+        <img src="static/images/spotify_logo.png" alt="Logo" class="picture">
+        <div class="popup" id="popup"></div>
+    </div>
+    
     <h1>{% block title %} Welcome to Listify! {% endblock %}</h1>
     <h5>Download your Spotify playlists and get the song files in highest quality</h5>
-
-
+    
     <div id="progress"></div>
 
     <div class="form-group">
@@ -23,11 +26,11 @@
     </div>
 
     <div class="form-group">
-        <input type="submit" value='Download' class="button" onclick="return start_long_task(document.getElementById('playlist').value, document.getElementById('filetype').value)"></input>
+        <input type="submit" value='Download' class="button" onclick="return check_playlist_length()"></input>
     </div>
 
     <script>
-        function start_long_task(playlist_id, filetype) {
+        function start_long_task() {
             // add task status elements 
             div = $('<div id="progress"><div></div><div>0%</div><div>...</div><div>&nbsp;</div></div>');
             $('#progress').append(div);
@@ -37,7 +40,9 @@
                 bg: '#44f',
                 target: div[0].childNodes[0]
             });
-
+            
+            playlist_id = document.getElementById('playlist').value
+            filetype = document.getElementById('filetype').value
             // send ajax POST request to start background job
             $.ajax({
                 type: 'POST',
@@ -50,11 +55,52 @@
                     update_progress(status_url, nanobar, div[0]);
                 },
                 error: function() {
-                    alert('Unexpected error');
+                    alert('Error at download: ', error);
                 }
             });
         }
+    </script>
 
+    <script>
+        function check_playlist_length() {
+            // send ajax POST request to check playlist length
+            playlist_id = document.getElementById('playlist').value
+            $.ajax({
+                type: 'POST',
+                url: '/playlist_check',
+                data: JSON.stringify({playlist_id: playlist_id}),
+                contentType: "application/json",
+                dataType: 'json',
+            }).done(function (data) {
+                // check if playlist too long
+                if (data.response == true) {
+                    // create popup div
+                    var popup_div = $(`<div class="popuptext" id="myPopup" 
+                    onclick="start_long_task()">
+                    
+                    Very sorry, but the playlist is too long! <br />
+                    Because this is an open source project, no income is generated to pay the servers
+                    that are running the application. If you want to continue downloading your first 10 songs,
+                    simply click this grey area!
+                    
+                    <br /> <br />
+                    Or <a href="https://github.com/juice1000/spotify-playlist-downloader">download here for free</a>  
+                    to run the application locally.<br />
+                    <br />
+                    Always feel free to reach out if something is unclear!
+                    </div>`)
+                    $('#popup').append(popup_div)
+                    // load the window
+                    var popup_window = document.getElementById("myPopup");
+                    popup_window.classList.toggle("show");
+                } else {
+                    // we can directly start with the download
+                    start_long_task()
+                }
+            }).fail(function (error) {
+                alert('Error at playlist check: ', error);
+            });
+        }
     </script>
 
     <script>

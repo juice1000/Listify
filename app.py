@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash, send_file, url_for, jsonify
+from flask import Flask, render_template, request, flash, send_file, url_for, jsonify, redirect
 import spotify_get_song_names as spt
 import youtube_downloader as yt
 from config import Prod, Dev
@@ -32,6 +32,39 @@ local_download_directory = os.path.join(os.getcwd(), 'static', 'music_files')
 def index():
     return render_template('index.html')
 
+
+@app.route('/playlist_check', methods=('GET', 'POST'))
+def playlist_check():
+    if request.method == 'POST':
+        playlist_id = request.json["playlist_id"]
+        print(playlist_id)
+        if not playlist_id:
+            flash('Playlist Link is required!')
+        
+        playlist_too_long = spt.playlist_too_long(playlist_id)
+        return jsonify({'response': playlist_too_long})
+
+
+@app.route('/info_redirect')
+def info_redirect():
+    return render_template('info_box.html') 
+
+
+@app.route('/download', methods=('GET', 'POST'))
+def download():
+    if request.method == 'POST':
+        playlist_id = request.json["playlist_id"]
+        filetype = request.json["filetype"]
+        print(playlist_id)
+        if not playlist_id:
+            flash('Playlist Link is required!')
+        
+        # First third of progress bar would be song title retrieval, second third would be download, last would be zipping
+        task = background_process.apply_async(args=(playlist_id, filetype))
+        result = jsonify({}), 202, {'Location': url_for('progress', task_id=task.id)}
+        return result
+
+
 def zipping(data, dirName):
     # create a ZipFile object
     with ZipFile(data, 'w') as zipObj:
@@ -46,21 +79,7 @@ def zipping(data, dirName):
                 print('filepath to write: ', filePath)
                 # Add file to zip
                 zipObj.write(filePath, basename(filePath))
-        
-        
-@app.route('/download', methods=('GET', 'POST'))
-def download():
-    if request.method == 'POST':
-        playlist_id = request.json["playlist_id"]
-        filetype = request.json["filetype"]
-        print(playlist_id)
-        if not playlist_id:
-            flash('Title is required!')
-        # First third of progress bar would be song title retrieval, second third would be download, last would be zipping
-        task = background_process.apply_async(args=(playlist_id, filetype))
-        result = jsonify({}), 202, {'Location': url_for('progress', task_id=task.id)}
-        return result
-        
+
 
 @app.route('/send_zip_file', methods=('GET', 'POST'))
 def send_zip_file():
