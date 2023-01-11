@@ -50,10 +50,14 @@ def extract_song_data(soup, song_count):
     track_extracts = soup.find_all('div', {"class": "iCQtmPqY0QvkumAOuCjr"})
     
     tracks = []
+    counter = 1
     for track_extract in track_extracts:
         song_name = track_extract.find('div',"Type__TypeElement-sc-goli3j-0 kHHFyx t_yrXoUO3qGsJS4Y6iXX standalone-ellipsis-one-line").contents[0]
         artist_name = track_extract.find('span',"Type__TypeElement-sc-goli3j-0 dvSMET rq2VQ5mb9SDAFWbBIUIn standalone-ellipsis-one-line").contents[0].contents[0]
         tracks.append(f"{song_name}  by  {artist_name}")
+        counter += 1
+        if counter == 10:
+            break
 
     return tracks
 

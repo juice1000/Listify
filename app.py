@@ -45,11 +45,6 @@ def playlist_check():
         return jsonify({'response': playlist_too_long})
 
 
-@app.route('/info_redirect')
-def info_redirect():
-    return render_template('info_box.html') 
-
-
 @app.route('/download', methods=('GET', 'POST'))
 def download():
     if request.method == 'POST':
@@ -99,11 +94,14 @@ def send_zip_file():
         download_filename = os.path.join(path, key_filename)
         s3.download_file(Bucket=AWS_BUCKET_NAME, Key=key['Key'], Filename=download_filename)
         s3.delete_object(Bucket=AWS_BUCKET_NAME, Key=key['Key'])
+        print('downloaded song: ', key_filename)
     
     data = BytesIO()
+    print('zipping')
     zipping(data, path)
     data.seek(0)
     shutil.rmtree(path, ignore_errors=False, onerror=None)
+    print('sending file')
     return send_file(data, mimetype='application/zip', as_attachment=True, download_name='music_playlist.zip')
 
 
