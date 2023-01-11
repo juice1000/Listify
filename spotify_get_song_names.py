@@ -114,7 +114,6 @@ def playlist_too_long(URL):
     soup = BeautifulSoup(page.content, features='lxml')
 
     song_count = get_number_of_tracks(soup)
-    
     if song_count > 10:
         return True
     return False

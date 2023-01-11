@@ -5,8 +5,8 @@
     <img src="static/images/spotify_logo.png" alt="Logo" class="picture">
     <h1>{% block title %} Welcome to Listify! {% endblock %}</h1>
     <h5>Download your Spotify playlists and get the song files in highest quality</h5>
-
-
+    
+    <div class="popup" id="popup"></div>
     <div id="progress"></div>
 
     <div class="form-group">
@@ -23,7 +23,7 @@
     </div>
 
     <div class="form-group">
-        <input type="submit" value='Download' class="button" onclick="return start_long_task(document.getElementById('playlist').value, document.getElementById('filetype').value)"></input>
+        <input type="submit" value='Download' class="button" onclick="return check_playlist_length(document.getElementById('playlist').value, document.getElementById('filetype').value)"></input>
     </div>
 
     <script>
@@ -37,9 +37,12 @@
                 bg: '#44f',
                 target: div[0].childNodes[0]
             });
-
+            
+            console.log('we got here!')
+            const playlist_too_long = 0
             // send ajax POST request to start background job
-            $.ajax({
+            if (playlist_too_long == 1){
+                $.ajax({
                 type: 'POST',
                 url: '/download',
                 data: JSON.stringify({playlist_id: playlist_id, filetype: filetype }),
@@ -50,11 +53,40 @@
                     update_progress(status_url, nanobar, div[0]);
                 },
                 error: function() {
-                    alert('Unexpected error');
+                    alert('Error at download: ', error);
                 }
             });
+            }
         }
 
+    </script>
+
+    <script>
+        function check_playlist_length(playlist_id, filetype) {
+            // send ajax POST request to check playlist length
+            $.ajax({
+                type: 'POST',
+                url: '/playlist_check',
+                data: JSON.stringify({playlist_id: playlist_id, filetype: filetype }),
+                contentType: "application/json",
+                dataType: 'json',
+            }).done(function (data) {
+                // check if playlist too long
+                if (data.response == true) {
+                    // create popup div
+                    var popup_div = $('<div class="popuptext" id="myPopup" onclick="start_long_task(`placeholder`, `placeholder`)">Click me to continue!</div>')
+                    $('#popup').append(popup_div)
+                    // load the window
+                    var popup_window = document.getElementById("myPopup");
+                    popup_window.classList.toggle("show");
+                } else {
+                    // we can directly start with the download
+                    start_long_task(playlist_id, filetype)
+                }
+            }).fail(function (error) {
+                alert('Error at playlist check: ', error);
+            });
+        }
     </script>
 
     <script>
