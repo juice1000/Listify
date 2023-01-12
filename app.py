@@ -79,6 +79,7 @@ def zipping(data, dirName):
 @app.route('/send_zip_file', methods=('GET', 'POST'))
 def send_zip_file():
     path = local_download_directory
+    shutil.rmtree(path, ignore_errors=True)
     os.makedirs(path)
     # initialize active storage
     s3 = boto3.client(
@@ -98,20 +99,19 @@ def send_zip_file():
     
     data = BytesIO()
     print('zipping')
-    zipping(data, path)
     data.seek(0)
-    shutil.rmtree(path, ignore_errors=False, onerror=None)
-    print('sending file')
+    shutil.rmtree(path, ignore_errors=True)
     return send_file(data, mimetype='application/zip', as_attachment=True, download_name='music_playlist.zip')
 
 
 @celery.task(bind=True)
 def background_process(self, playlist_link, filetype):
     path = local_download_directory
+    shutil.rmtree(path, ignore_errors=True)
     process = 0
     song_titles = spt.track_data_extractor(playlist_link)
     process = 30
-    single_song_percent = int(60 / len(song_titles))
+    single_song_percent = int(70 / len(song_titles))
     self.update_state(state='PROGRESS', meta={'current': process, 'total': 100, 'status': 'downloading songs'})
 
     # initialize active storage
@@ -134,7 +134,7 @@ def background_process(self, playlist_link, filetype):
         process += single_song_percent
         self.update_state(state='PROGRESS', meta={'current': process, 'total': 100, 'status': 'downloading songs'})
 
-    shutil.rmtree(path)
+    shutil.rmtree(path, ignore_errors=True)
     self.update_state(state='SUCCESS', meta={'current': 100, 'total': 100, 'status': 'Finished downloads! Zipping now...','result': 42})
     time.sleep(2)
     return {'current': 100, 'total': 100, 'status': 'Finished downloads! Zipping now...',
