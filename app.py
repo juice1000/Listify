@@ -64,14 +64,11 @@ def zipping(data, dirName):
     # create a ZipFile object
     with ZipFile(data, 'w') as zipObj:
     # Iterate over all the files in directory
-        print('existing in zipping ', os.path.exists(dirName))
         
         for folderName, subfolders, filenames in os.walk(dirName):
             for filename in filenames:
                 #create complete filepath of file in directory
-
                 filePath = os.path.join(folderName, filename)
-                print('filepath to write: ', filePath)
                 # Add file to zip
                 zipObj.write(filePath, basename(filePath))
 

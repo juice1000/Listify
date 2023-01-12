@@ -118,6 +118,7 @@
                         // show result
                         $(status_div.childNodes[3]).text('Result: ' + data['result']);
                         $(status_div).remove();
+                        $("<div>Hang on we're creating a zip file for you now...</div>").appendTo('#progress')
                         // redirect to url to download zip file
                         window.location = "/send_zip_file"
                     }
@@ -126,7 +127,7 @@
                         $(status_div.childNodes[3]).text('Result: ' + data['state']);
                         setTimeout(function() {
                             $(status_div).remove();
-                        }, 3000);
+                        }, 2000);
                         
                     }
                 }
