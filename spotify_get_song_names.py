@@ -56,7 +56,7 @@ def extract_song_data(soup, song_count):
         artist_name = track_extract.find('span',"Type__TypeElement-sc-goli3j-0 dvSMET rq2VQ5mb9SDAFWbBIUIn standalone-ellipsis-one-line").contents[0].contents[0]
         tracks.append(f"{song_name}  by  {artist_name}")
         counter += 1
-        if counter == 10:
+        if counter == 5:
             break
 
     return tracks
@@ -82,8 +82,8 @@ def track_data_extractor(URL):
     song_count = get_number_of_tracks(soup)
 
     # Limiter to downloadable song count
-    if song_count > 10:
-        song_count = 10
+    if song_count > 5:
+        song_count = 5
     
     # undo cookies window
     try:
@@ -118,6 +118,6 @@ def playlist_too_long(URL):
     soup = BeautifulSoup(page.content, features='lxml')
 
     song_count = get_number_of_tracks(soup)
-    if song_count > 10:
+    if song_count > 5:
         return True
     return False
