@@ -98,8 +98,9 @@ def send_zip_file():
         print('downloaded song: ', key_filename)
     
     data = BytesIO()
-    print('zipping')
+    zipping(data, path)
     data.seek(0)
+    shutil.rmtree(path, ignore_errors=True)
     return send_file(data, mimetype='application/zip', as_attachment=True, download_name='music_playlist.zip')
 
 
