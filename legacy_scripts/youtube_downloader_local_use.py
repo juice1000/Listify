@@ -12,7 +12,7 @@ def download_from_link(playlist_link, debug=False):
 
     # TODO: print out chosen playlist name
     if playlist_link == '':
-        playlist_link = 'https://open.spotify.com/playlist/3ULk7XI8p5pQ0zv0dVbTzs?si=7ba6395d1f7443c5'
+        playlist_link = 'https://open.spotify.com/playlist/2SPg0NhJAWMYatM6dH5i59?si=29608d9e9d5a4264'
         #debug = True
 
     # Parse playlist id from link
@@ -28,7 +28,7 @@ def download_from_link(playlist_link, debug=False):
     music_directory = home + '/Music/' 
     music_subdirectory =  input('Specify directory [press enter if you want to create a directory in music folder]: \n')
     if music_subdirectory == '':
-        music_subdirectory = 'spotify_downloaded_playlist/downtempo_set'
+        music_subdirectory = 'spotify_downloaded_playlist/melodic_techno'
 
 
 
