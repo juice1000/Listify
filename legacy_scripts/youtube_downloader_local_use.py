@@ -13,7 +13,7 @@ def progress_hook(d):
         print(f"✅ Download complete: {d['filename']}")
 
 
-def search_youtube(song_title: str, max_results: int = 1):
+def search_youtube(song_title: str, max_results: int = 5, max_length: int = 750):
     """Search for a song on YouTube and return video URLs."""
     ydl_opts = {
         "quiet": True,
@@ -26,11 +26,14 @@ def search_youtube(song_title: str, max_results: int = 1):
         search_query = f"ytsearch{max_results}:{song_title}"
         info = ydl.extract_info(search_query, download=False)
 
+        valid_tracks = []
         if "entries" in info and len(info["entries"]) > 0:
-            return [entry["url"] for entry in info["entries"]]
-        else:
-            print("No results found.")
-            return []
+            for entry in info["entries"]:
+                duration = entry.get("duration", 0)  # Get duration in seconds
+                if duration <= max_length:
+                    valid_tracks.append(entry["url"])
+
+        return valid_tracks
 
 
 def download_audio(video_url: str, target_file_type: str, parent_dir: str):
