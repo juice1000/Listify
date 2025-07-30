@@ -1,5 +1,5 @@
 fastapi==0.104.1
 uvicorn==0.24.0
-yt-dlp==2023.11.16
+yt-dlp==2025.7.21
 spotipy==2.22.1
 pydantic==2.5.0
