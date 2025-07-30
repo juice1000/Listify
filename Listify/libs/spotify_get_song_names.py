@@ -1,5 +1,4 @@
 # from dotenv import dotenv_values
-import os
 
 import spotipy
 from spotipy import util
@@ -20,7 +19,12 @@ CLIENT_SECRET = "ef3cdce4889e4a55aff19bebbdaa5c24"
 # deprecated
 def authorization():
     token = util.prompt_for_user_token(
-        username, scope, client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri="http://localhost:9090/", show_dialog=True
+        username,
+        scope,
+        client_id=CLIENT_ID,
+        client_secret=CLIENT_SECRET,
+        redirect_uri="http://localhost:9090/",
+        show_dialog=True,
     )
     auth = f"Authorization: Bearer {token}"
 
@@ -40,10 +44,18 @@ def retrieve_playlist_songs(playlist_id, debug):
     auth = authorization2()
     sp = spotipy.Spotify(auth_manager=auth)
     # the fields specify the data selection of the query, works somewhat like graphQL
-    dictionary = sp.playlist(playlist_id, fields="tracks(items(track(name,album(artists(name)))))")
+
+    # Retrieve all tracks in the playlist
+    results = sp.playlist_tracks(playlist_id)
+    tracks = results["items"]
+
+    # Continue fetching tracks if the playlist has more than 100 items
+    while results["next"]:
+        results = sp.next(results)
+        tracks.extend(results["items"])
 
     song_titles = []
-    tracks = dictionary.get("tracks", {}).get("items", [])
+    # tracks = dictionary.get("tracks", {}).get("items", [])
 
     # we only append the first track to our song list if we're in debug mode
     if debug:
