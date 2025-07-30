@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import './App.css';
+import spotifyLogo from './assets/spotify-logo.svg';
 
 function App() {
   const [playlistId, setPlaylistId] = useState('');
@@ -48,7 +49,9 @@ function App() {
 
   return (
     <div className="app">
-      <h1>Listify - Spotify Playlist Downloader</h1>
+      <div className="header">
+        <h1>Listify - Playlist Downloader</h1>
+      </div>
 
       <div className="form">
         <div className="input-group">

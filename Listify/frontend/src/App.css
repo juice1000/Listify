@@ -5,32 +5,11 @@
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: linear-gradient(135deg, #143d22, #00ff59);
+  margin: 0;
+  min-height: 100vh;
 }
 
 .card {
@@ -46,11 +25,51 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.app::before {
+  content: '';
+  position: absolute;
+  top: 30%;
+  right: -15%;
+  width: 500px;
+  height: 500px;
+  background-image: url('./assets/spotify-logo.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  transform: rotate(180deg);
+  opacity: 0.08;
+  z-index: 0;
+  pointer-events: none;
+  filter: brightness(0);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.black-logo {
+  filter: brightness(0) drop-shadow(0 0 1em rgba(0, 0, 0, 0.2));
 }
 
 h1 {
-  color: #646cff;
-  margin-bottom: 2rem;
+  color: #191414;
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 700;
 }
 
 .form {
@@ -58,6 +77,8 @@ h1 {
   flex-direction: column;
   gap: 1.5rem;
   text-align: left;
+  position: relative;
+  z-index: 1;
 }
 
 .input-group {
@@ -67,23 +88,24 @@ h1 {
 }
 
 label {
-  font-weight: 500;
-  color: #888;
+  font-weight: 600;
+  color: #191414;
 }
 
 input {
   padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
   font-size: 1rem;
-  background-color: #1a1a1a;
-  color: white;
-  border-color: #444;
+  background-color: #ffffff;
+  color: #191414;
+  transition: border-color 0.3s ease;
 }
 
 input:focus {
   outline: none;
-  border-color: #646cff;
+  border-color: #1db954;
+  box-shadow: 0 0 0 3px rgba(29, 185, 84, 0.1);
 }
 
 .folder-input {
@@ -98,37 +120,50 @@ input:focus {
 .folder-input button {
   padding: 0.75rem 1rem;
   white-space: nowrap;
+  background-color: #1db954;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.folder-input button:hover {
+  background-color: #1ed760;
 }
 
 .download-btn {
   padding: 1rem 2rem;
   font-size: 1.1rem;
   font-weight: 600;
-  background-color: #646cff;
+  background-color: #1db954;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 12px;
   cursor: pointer;
   margin-top: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(29, 185, 84, 0.3);
 }
 
 .download-btn:hover:not(:disabled) {
-  background-color: #535bf2;
+  background-color: #1ed760;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(29, 185, 84, 0.4);
 }
 
 .download-btn:disabled {
-  background-color: #444;
+  background-color: #cccccc;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 @media (prefers-color-scheme: light) {
-  input {
-    background-color: #f9f9f9;
-    color: #213547;
-    border-color: #ddd;
-  }
+  /* Remove the light mode overrides since we're using a consistent light theme */
+}
 
-  label {
-    color: #555;
-  }
+.logo {
+  rotate: 180deg !important;
 }
